@@ -1,7 +1,7 @@
 def transition_stages = [
     in_progress: 31,
     done: 41,
-    failed: 44
+    failed: 45
 ]
 
 pipeline {
@@ -43,11 +43,11 @@ pipeline {
         script {
           // try to build, if fails it will catch the error
           try {
-            sh 'true'
+            sh 'false'
           } catch(e) {
             env.BUILD_ERROR_MSG = e
             // fail the catch, so the post step is correctly ran
-            error(e)
+            sh 'false'
           }
         }
       }
@@ -61,6 +61,7 @@ pipeline {
                 echo "Build is successful, sending CR to complete"
                 withEnv(['JIRA_SITE=ohtest']) {
                   transitionTicket(transition_stages.done)
+                  commentTicket("Build finished on ${env.BUILD_URL}")
                 }
             }
         }
@@ -69,7 +70,7 @@ pipeline {
               echo "message: " + env.BUILD_ERROR_MSG
                 // If the deployment fails, the CR will be closed via the failure outcome.
                 withEnv(['JIRA_SITE=ohtest']) {
-                  //transitionTicket(transition_stages.failed)
+                  transitionTicket(transition_stages.failed)
                   commentTicket(env.BUILD_ERROR_MSG)
                 }
             }
