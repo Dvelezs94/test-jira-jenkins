@@ -1,3 +1,9 @@
+def transition_stages = [
+    in_progress: 31,
+    done: 41,
+    failed: 44
+]
+
 pipeline {
   agent any
 
@@ -60,6 +66,7 @@ pipeline {
         }
         failure {
             script {
+              echo "message: " + env.BUILD_ERROR_MSG
                 // If the deployment fails, the CR will be closed via the failure outcome.
                 withEnv(['JIRA_SITE=ohtest']) {
                   //transitionTicket(transition_stages.failed)
@@ -69,12 +76,6 @@ pipeline {
         }
     }
 }
-
-def transition_stages = [
-    in_progress: 31,
-    done: 41,
-    failed: 44
-]
 
 def transitionTicket(transition_id) {
   def transitionInput =
@@ -89,5 +90,5 @@ def transitionTicket(transition_id) {
 
 def commentTicket(message) {
   def comment = [ body: message ]
-  jiraAddComment idOrKey: env.JIRA_TICKET, input: comment
+  jiraAddComment idOrKey: env.JIRA_TICKET, input: comment.toString()
 }
