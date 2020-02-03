@@ -43,7 +43,7 @@ pipeline {
         script {
           // try to build, if fails it will catch the error
           try {
-            sh 'false'
+            sh 'true'
           } catch(e) {
             env.BUILD_ERROR_MSG = e
             // fail the catch, so the post step is correctly ran
@@ -90,5 +90,5 @@ def transitionTicket(transition_id) {
 
 def commentTicket(message) {
   def comment = [ body: message ]
-  jiraAddComment idOrKey: env.JIRA_TICKET, input: comment.toString()
+  jiraAddComment idOrKey: env.JIRA_TICKET, input: comment
 }
